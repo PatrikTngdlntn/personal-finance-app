@@ -13,14 +13,28 @@ return new class extends Migration
     {
         Schema::create('wallets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
+            // RELASI
+            $table->foreignId('user_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
             $table->string('name');
-            $table->decimal('balance', 15, 2)->default(0);
+
+            // TAMBAHAN KAMU (GOOD)
             $table->enum('type', ['cash', 'bank', 'e-wallet']);
-            $table->unique(['user_id', 'name']);
+
+            // SESUAI ERD
+            $table->string('currency')->default('IDR');
+            $table->decimal('initial_balance', 15, 2)->default(0);
+
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->index('user_id');
         });
     }
+
 
     /**
      * Reverse the migrations.

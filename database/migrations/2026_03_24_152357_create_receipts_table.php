@@ -17,10 +17,13 @@ return new class extends Migration
             $table->string('image_path');
             $table->decimal('ocr_amount', 15, 2)->nullable();
             $table->text('ocr_text')->nullable();
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->nullable();
+
+            $table->timestamps();
+
+            $table->index('transaction_id');
         });
     }
+
 
     /**
      * Reverse the migrations.

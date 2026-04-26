@@ -11,15 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transfers', function (Blueprint $table) {
+        Schema::create('savings_transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('from_wallet_id')->constrained('wallets')->cascadeOnDelete();
-            $table->foreignId('to_wallet_id')->constrained('wallets')->cascadeOnDelete();
+
+            $table->foreignId('savings_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
             $table->decimal('amount', 15, 2);
-            $table->text('description')->nullable();
-            $table->date('transfer_date');
+
+            $table->enum('type', ['deposit', 'withdraw']);
+
             $table->timestamps();
+
+            $table->index('savings_id');
         });
     }
 
@@ -28,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transfers');
+        Schema::dropIfExists('savings_transactions');
     }
 };

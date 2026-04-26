@@ -13,13 +13,22 @@ return new class extends Migration
     {
         Schema::create('savings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+
+            $table->foreignId('user_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
             $table->string('name');
+
             $table->decimal('target_amount', 15, 2);
+
             $table->decimal('saved_amount', 15, 2)->default(0);
+
             $table->date('target_date')->nullable();
+
             $table->timestamps();
-            $table->unique(['user_id', 'name']);
+
+            $table->index('user_id');
         });
     }
 

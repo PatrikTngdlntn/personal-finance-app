@@ -14,14 +14,24 @@ return new class extends Migration
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+
             $table->string('name');
+
             $table->decimal('amount', 15, 2);
-            $table->enum('billing_cycle', ['daily', 'weekly', 'monthly', 'yearly']);
+
+            $table->string('currency')->default('IDR');
+
+            $table->enum('billing_cycle', ['weekly', 'monthly', 'yearly']);
+
             $table->date('next_billing');
+
             $table->timestamps();
-            $table->unique(['user_id', 'name']);
+
+            $table->index('user_id');
+            $table->index('next_billing');
         });
     }
+
 
     /**
      * Reverse the migrations.

@@ -15,12 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
-            $table->decimal('amount_limit', 15, 2);
-            $table->enum('period', ['monthly', 'yearly', 'costum']);
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
-            $table->unique(['user_id', 'category_id', 'period', 'start_date', 'end_date']);
+            $table->decimal('limit_amount', 15, 2);
+
+            $table->enum('period', ['daily', 'weekly', 'monthly', 'yearly']);
+
             $table->timestamps();
+
+            $table->unique(['user_id', 'category_id', 'period']);
         });
     }
 
