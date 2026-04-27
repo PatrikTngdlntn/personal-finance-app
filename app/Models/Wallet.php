@@ -3,40 +3,41 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\App;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 use App\Models\Transaction;
-use App\Models\Transfer;
+
 
 class Wallet extends Model
 {
+    use HasFactory, SoftDeletes;
     protected $fillable = [
         'user_id',
         'name',
-        'balance',
-        'type'
+        'currency',
+        'initial_balance',
     ];
 
-    // user
+    protected $casts = [
+        'initial_balance' => 'decimal:2',
+    ];
+
+    // Wallet milik user
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // transactions
+    // Transaksi keluar/masuk dari wallet
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
     }
 
-    // transfers keluar
-    public function transfersFrom()
+    // Transaksi transfer MASUK 
+    public function incomingTransfers()
     {
-        return $this->hasMany(Transfer::class, 'from_wallet_id');
-    }
-    // transfers masuk
-    public function transfersTo()
-    {
-        return $this->hasMany(Transfer::class, 'to_wallet_id');
+        return $this->hasMany(Transaction::class, 'transfer_to_wallet_id');
     }
 }

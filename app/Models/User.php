@@ -2,50 +2,35 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Wallet;
 use App\Models\Category;
 use App\Models\Transaction;
-use App\Models\Transfer;
 use App\Models\Budget;
 use App\Models\Subscription;
 use App\Models\Saving;
+use App\Models\AdminLog;
+
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role',
+        'avatar'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    // casts
     protected function casts(): array
     {
         return [
@@ -53,7 +38,7 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    //  Wallet
+    // Wallet
     public function wallets()
     {
         return $this->hasMany(Wallet::class);
@@ -69,12 +54,6 @@ class User extends Authenticatable
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
-    }
-
-    // Transfer
-    public function transfers()
-    {
-        return $this->hasMany(Transfer::class);
     }
 
     // Budget
@@ -93,5 +72,17 @@ class User extends Authenticatable
     public function savings()
     {
         return $this->hasMany(Saving::class);
+    }
+
+    // sebagai admin (yang melakukan aksi)
+    public function adminLogs()
+    {
+        return $this->hasMany(AdminLog::class, 'admin_id');
+    }
+
+    // sebagai target user
+    public function targetLogs()
+    {
+        return $this->hasMany(AdminLog::class, 'target_user_id');
     }
 }
