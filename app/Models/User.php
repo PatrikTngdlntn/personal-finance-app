@@ -21,7 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
+        'role = admin | user',
         'avatar'
     ];
 
@@ -84,5 +84,15 @@ class User extends Authenticatable
     public function targetLogs()
     {
         return $this->hasMany(AdminLog::class, 'target_user_id');
+    }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isUser()
+    {
+        return $this->role === 'user';
     }
 }
