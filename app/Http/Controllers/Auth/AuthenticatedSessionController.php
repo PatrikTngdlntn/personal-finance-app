@@ -30,24 +30,28 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
-        if ($user->role === 'admin') {
-            return redirect('/admin');
+        // Safety check (optional tapi bagus)
+        if (!$user) {
+            return redirect()->route('login');
         }
 
-        return redirect('/dashboard');
+        // Redirect berdasarkan role
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return redirect()->route('user.dashboard');
     }
 
     /**
      * Destroy an authenticated session.
-     */
-    public function destroy(Request $request): RedirectResponse
+     */ public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'Berhasil logout');
+        return redirect()->route('login');
     }
 }

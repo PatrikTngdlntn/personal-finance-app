@@ -35,6 +35,8 @@ class Saving extends Model
     // Riwayat setoran / penarikan
     public function transactions()
     {
-        return $this->hasMany(SavingTransaction::class);
+        // FK eksplisit karena kolom di DB adalah 'savings_id' (plural),
+        // bukan 'saving_id' yang jadi default Laravel
+        return $this->hasMany(SavingTransaction::class, 'savings_id');
     }
 }

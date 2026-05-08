@@ -9,6 +9,11 @@ use App\Models\User;
 
 class AdminLog extends Model
 {
+    /**
+     * AdminLog hanya menyimpan created_at (append-only audit log).
+     * Kolom updated_at tidak ada di tabel.
+     */
+    const UPDATED_AT = null;
     use HasFactory;
     protected $fillable = [
         'admin_id',

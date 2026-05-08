@@ -15,6 +15,7 @@ class Wallet extends Model
     protected $fillable = [
         'user_id',
         'name',
+        'type',
         'currency',
         'initial_balance',
     ];
@@ -39,5 +40,35 @@ class Wallet extends Model
     public function incomingTransfers()
     {
         return $this->hasMany(Transaction::class, 'transfer_to_wallet_id');
+    }
+
+    public function getBalanceAttribute()
+    {
+        // income
+        $income = Transaction::where('wallet_id', $this->id)
+            ->where('type', 'income')
+            ->sum('amount');
+
+        // expense
+        $expense = Transaction::where('wallet_id', $this->id)
+            ->where('type', 'expense')
+            ->sum('amount');
+
+        // transfer keluar
+        $transferOut = Transaction::where('wallet_id', $this->id)
+            ->where('type', 'transfer')
+            ->sum('amount');
+
+        // transfer masuk
+        $transferIn = Transaction::where('transfer_to_wallet_id', $this->id)
+            ->where('type', 'transfer')
+            ->sum('amount');
+
+        return
+            $this->initial_balance
+            + $income
+            - $expense
+            - $transferOut
+            + $transferIn;
     }
 }
