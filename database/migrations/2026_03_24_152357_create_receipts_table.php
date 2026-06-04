@@ -13,10 +13,35 @@ return new class extends Migration
     {
         Schema::create('receipts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('transaction_id')->constrained()->cascadeOnDelete();
+
+            $table->foreignId('transaction_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
+
             $table->string('image_path');
-            $table->decimal('ocr_amount', 15, 2)->nullable();
-            $table->text('ocr_text')->nullable();
+
+            $table->decimal('ocr_amount', 15, 2)
+                ->nullable();
+
+            $table->text('ocr_text')
+                ->nullable();
+
+            $table->string('merchant_name')
+                ->nullable();
+
+            $table->date('receipt_date')
+                ->nullable();
+
+            $table->decimal('ocr_confidence', 5, 2)
+                ->nullable();
+
+            $table->enum('status', [
+                'pending',
+                'processed',
+                'verified',
+                'failed'
+            ])->default('pending');
 
             $table->timestamps();
 

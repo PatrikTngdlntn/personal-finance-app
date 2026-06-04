@@ -11,20 +11,36 @@ return new class extends Migration
      */
     public function up(): void
     {
+
         Schema::create('savings_transactions', function (Blueprint $table) {
+
             $table->id();
+
+            $table->foreignId('user_id')
+                ->constrained()
+                ->cascadeOnDelete();
 
             $table->foreignId('savings_id')
                 ->constrained()
                 ->cascadeOnDelete();
 
+            $table->foreignId('wallet_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
             $table->decimal('amount', 15, 2);
 
-            $table->enum('type', ['deposit', 'withdraw']);
+            $table->enum('type', [
+                'deposit',
+                'withdraw'
+            ]);
+
+            $table->date('transaction_date');
+
+            $table->text('description')
+                ->nullable();
 
             $table->timestamps();
-
-            $table->index('savings_id');
         });
     }
 
