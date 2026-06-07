@@ -8,6 +8,7 @@
     <title>{{ $title ?? 'Dashboard' }} — Personal Finance</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="bg-gray-50 text-gray-800 antialiased">
@@ -181,7 +182,7 @@
                     </a>
                 </nav>
             </div>
-           
+
             {{-- LOGOUT --}}
             <div class="p-4 border-t border-gray-100 bg-white">
 
