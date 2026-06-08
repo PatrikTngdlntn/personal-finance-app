@@ -48,6 +48,27 @@ class DashboardController extends Controller
             ->whereBetween('transaction_date', [$startOfMonth, $endOfMonth])
             ->sum('amount');
 
+        $previousStartOfMonth = Carbon::now()->subMonthNoOverflow()->startOfMonth();
+        $previousEndOfMonth = Carbon::now()->subMonthNoOverflow()->endOfMonth();
+
+        $previousIncome = Transaction::where('user_id', $userId)
+            ->where('type', 'income')
+            ->whereBetween('transaction_date', [$previousStartOfMonth, $previousEndOfMonth])
+            ->sum('amount');
+
+        $previousExpense = Transaction::where('user_id', $userId)
+            ->where('type', 'expense')
+            ->whereBetween('transaction_date', [$previousStartOfMonth, $previousEndOfMonth])
+            ->sum('amount');
+
+        $incomeTrend = $previousIncome > 0
+            ? round((($income - $previousIncome) / $previousIncome) * 100, 1)
+            : ($income > 0 ? 100 : 0);
+
+        $expenseTrend = $previousExpense > 0
+            ? round((($expense - $previousExpense) / $previousExpense) * 100, 1)
+            : ($expense > 0 ? 100 : 0);
+
         // =====================================
         // 3. TRANSAKSI TERBARU
         // =====================================
@@ -200,7 +221,11 @@ class DashboardController extends Controller
 
             'chartLabels',
             'incomeChartData',
-            'expenseChartData'
+            'expenseChartData',
+            'categoryLabels',
+            'categoryTotals',
+            'incomeTrend',
+            'expenseTrend'
         ));
     }
 }

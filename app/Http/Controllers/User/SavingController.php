@@ -6,16 +6,38 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Saving;
+use App\Models\SavingTransaction;
+use App\Models\Wallet;
 
 class SavingController extends Controller
 {
     // lihat semua tabungan user
     public function index()
     {
-        $savings = Saving::where('user_id', Auth::id())->latest()->paginate(10);
+        $savings = Saving::where('user_id', Auth::id())
+            ->latest()
+            ->paginate(9);
 
+        $allSavings = Saving::where('user_id', Auth::id())
+            ->latest()
+            ->get();
 
-        return view('user.saving.index', compact('savings'));
+        $wallets = Wallet::where('user_id', Auth::id())
+            ->latest()
+            ->get();
+
+        $savingTransactions = SavingTransaction::where('user_id', Auth::id())
+            ->with(['savingAccount', 'wallet'])
+            ->latest('transaction_date')
+            ->latest()
+            ->paginate(8, ['*'], 'saving_transactions_page');
+
+        return view('user.saving.index', compact(
+            'savings',
+            'allSavings',
+            'wallets',
+            'savingTransactions'
+        ));
     }
 
     // membuat saving baru
@@ -53,9 +75,7 @@ class SavingController extends Controller
             abort(403);
         }
 
-        $saving->load('transactions');
-
-        return view('user.saving.show', compact('saving'));
+        return redirect()->route('user.saving.index');
     }
 
     // FORM EDIT

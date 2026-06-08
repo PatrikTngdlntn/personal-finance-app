@@ -18,17 +18,7 @@ class SavingTransactionController extends Controller
     // ==========================================
     public function index()
     {
-        $transactions = SavingTransaction::where('user_id', Auth::id())
-            ->with([
-                'savingAccount',
-                'wallet'
-            ])
-            ->latest()
-            ->paginate(10);
-
-        return view('user.saving-transaction.index', compact(
-            'transactions'
-        ));
+        return redirect()->route('user.saving.index');
     }
 
     // ==========================================
@@ -36,16 +26,7 @@ class SavingTransactionController extends Controller
     // ==========================================
     public function create()
     {
-        $savings = Saving::where('user_id', Auth::id())
-            ->get();
-
-        $wallets = Wallet::where('user_id', Auth::id())
-            ->get();
-
-        return view('user.saving-transaction.create', compact(
-            'savings',
-            'wallets'
-        ));
+        return redirect()->route('user.saving.index');
     }
 
     // ==========================================
@@ -86,6 +67,7 @@ class SavingTransactionController extends Controller
             if ($request->type === 'deposit') {
 
                 if ($wallet->initial_balance < $request->amount) {
+                    DB::rollBack();
 
                     return back()
                         ->withErrors([
@@ -113,6 +95,7 @@ class SavingTransactionController extends Controller
             if ($request->type === 'withdraw') {
 
                 if ($saving->saved_amount < $request->amount) {
+                    DB::rollBack();
 
                     return back()
                         ->withErrors([
@@ -150,7 +133,7 @@ class SavingTransactionController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('user.saving-transaction.index')
+                ->route('user.saving.index')
                 ->with(
                     'success',
                     'Transaksi tabungan berhasil dibuat'
@@ -225,7 +208,7 @@ class SavingTransactionController extends Controller
 
                 // balikin ke wallet
                 $oldWallet?->increment(
-                    'balance',
+                    'initial_balance',
                     $savingTransaction->amount
                 );
 
@@ -274,6 +257,7 @@ class SavingTransactionController extends Controller
             if ($request->type === 'deposit') {
 
                 if ($newWallet->initial_balance < $request->amount) {
+                    DB::rollBack();
 
                     return back()
                         ->withErrors([
@@ -296,6 +280,7 @@ class SavingTransactionController extends Controller
             if ($request->type === 'withdraw') {
 
                 if ($newSaving->saved_amount < $request->amount) {
+                    DB::rollBack();
 
                     return back()
                         ->withErrors([
@@ -331,7 +316,7 @@ class SavingTransactionController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('user.saving-transaction.index')
+                ->route('user.saving.index')
                 ->with(
                     'success',
                     'Transaksi tabungan berhasil diupdate'

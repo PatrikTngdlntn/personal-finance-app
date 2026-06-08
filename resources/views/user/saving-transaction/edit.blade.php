@@ -188,7 +188,7 @@
                 {{-- ACTION BUTTON --}}
                 <div class="flex items-center justify-end gap-3 pt-4">
 
-                    <a href="{{ route('user.saving-transaction.index') }}"
+                    <a href="{{ route('user.saving.index') }}"
                         class="px-5 py-3 rounded-xl border border-gray-200
                         text-gray-600 hover:bg-gray-100 transition">
 
