@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Wallet;
+use App\Models\SubscriptionHistory;
 
 class Subscription extends Model
 {
@@ -43,6 +44,11 @@ class Subscription extends Model
     {
         return $this->next_billing->isPast()
             || $this->next_billing->isToday();
+    }
+
+    public function histories()
+    {
+        return $this->hasMany(SubscriptionHistory::class);
     }
 
     // =========================

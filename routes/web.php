@@ -16,7 +16,7 @@ use App\Http\Controllers\User\SavingTransactionController;
 use App\Http\Controllers\User\SavingController;
 use App\Http\Controllers\User\SubscriptionController;
 use App\Http\Controllers\User\ReceiptController;
-
+use App\Http\Controllers\User\ReportController;
 // ADMIN
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 
@@ -33,7 +33,7 @@ Route::get('/', function () {
             : redirect()->route('user.dashboard');
     }
 
-    return redirect()->route('login');
+    return view('welcome');
 });
 
 
@@ -61,6 +61,10 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
     Route::get('/receipt/create', [ReceiptController::class, 'create'])->name('receipt.create');
 
     Route::post('/receipt/scan', [ReceiptController::class, 'scan'])->name('receipt.scan');
+
+    Route::post('/receipts/{receipt}/convert', [ReceiptController::class, 'convert'])->name('receipt.convert');
+    // report
+    Route::get('/report', [ReportController::class, 'index'])->name('report.index');
 });
 /*
 |--------------------------------------------------------------------------

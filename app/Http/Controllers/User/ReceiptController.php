@@ -4,8 +4,11 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
 use App\Models\Receipt;
+use App\Models\Wallet;
+use App\Models\Category;
+use App\Models\Transaction;
 use thiagoalessio\TesseractOCR\TesseractOCR;
 
 use Intervention\Image\ImageManager;
@@ -48,7 +51,7 @@ class ReceiptController extends Controller
                ->greyscale()
                ->contrast(30)   // turunkan dari 60 → 30, lebih aman untuk thermal print
                ->sharpen(8)     // tambah sharpen agar teks lebih tegas
-               ->brightness(5); // brightness minimal saja
+               ->brightness(2); // brightness minimal saja
 
           $image->save($fullPath);
 
@@ -87,7 +90,7 @@ class ReceiptController extends Controller
 
           // Prioritas keyword dari yang paling spesifik
           $totalKeywords = [
-               'total incl',    // MR D.I.Y pakai "Total Incl. PPN"
+               'total incl',
                'total incl. ppn',
                'grand total',
                'total bayar',
@@ -150,6 +153,123 @@ class ReceiptController extends Controller
           }
 
           // ==========================
+          // FALLBACK 2: TUNAI - KEMBALI
+          // ==========================
+
+          if (!$amount) {
+
+               $cash = null;
+               $change = null;
+
+               foreach ($lines as $line) {
+
+                    $lower = strtolower($line);
+
+                    if (
+                         str_contains($lower, 'tunai') ||
+                         str_contains($lower, 'cash')
+                    ) {
+
+                         preg_match_all('/[\d.,]+/', $line, $matches);
+
+                         if (!empty($matches[0])) {
+
+                              foreach (array_reverse($matches[0]) as $candidate) {
+
+                                   $cash = (int) preg_replace(
+                                        '/[^\d]/',
+                                        '',
+                                        $candidate
+                                   );
+
+                                   if ($cash > 0) {
+                                        break;
+                                   }
+                              }
+                         }
+                    }
+
+                    if (
+                         str_contains($lower, 'kembali') ||
+                         str_contains($lower, 'change')
+                    ) {
+
+                         preg_match_all('/[\d.,]+/', $line, $matches);
+
+                         if (!empty($matches[0])) {
+
+                              foreach (array_reverse($matches[0]) as $candidate) {
+
+                                   $change = (int) preg_replace(
+                                        '/[^\d]/',
+                                        '',
+                                        $candidate
+                                   );
+
+                                   if ($change > 0) {
+                                        break;
+                                   }
+                              }
+                         }
+                    }
+               }
+
+               if (
+                    $cash &&
+                    $change &&
+                    $cash > $change
+               ) {
+
+                    $amount = $cash - $change;
+               }
+          }
+
+          // ==========================
+          // FALLBACK 3: NOMINAL TERBESAR DI BAWAH STRUK
+          // ==========================
+
+          if (!$amount) {
+
+               $bottomLines = array_slice($lines, -10);
+
+               $numbers = [];
+
+               foreach ($bottomLines as $line) {
+
+                    preg_match_all(
+                         '/\d{1,3}(?:[.,]\d{3})+/',
+                         $line,
+                         $matches
+                    );
+
+                    if (!empty($matches[0])) {
+
+                         foreach ($matches[0] as $candidate) {
+
+                              $clean = (int) preg_replace(
+                                   '/[^\d]/',
+                                   '',
+                                   $candidate
+                              );
+
+                              if (
+                                   $clean >= 1000 &&
+                                   $clean <= 99999999
+                              ) {
+                                   $numbers[] = $clean;
+                              }
+                         }
+                    }
+               }
+
+               if (!empty($numbers)) {
+
+                    sort($numbers);
+
+                    $amount = $numbers[count($numbers) - 1];
+               }
+          }
+          // ==========================
           // DETEKSI MERCHANT
           // ==========================
 
@@ -205,13 +325,64 @@ class ReceiptController extends Controller
                'ocr_amount'     => $amount,
                'ocr_text'       => implode("\n", $lines), // simpan teks yang sudah bersih
           ]);
+          $wallets = Wallet::where('user_id', Auth::id())->get();
 
-          return view('user.receipt.result', compact(
-               'receipt',
-               'merchant',
-               'amount',
-               'date',
-               'lines', // kirim ke view untuk debug jika perlu
-          ));
+          $categories = Category::where('user_id', Auth::id())->get();
+
+          return view(
+               'user.receipt.result',
+               compact(
+                    'receipt',
+                    'merchant',
+                    'amount',
+                    'date',
+                    'lines',
+                    'wallets',
+                    'categories'
+               )
+          );
+     }
+     public function convert(
+          Request $request,
+          Receipt $receipt
+     ) {
+
+          $request->validate([
+               'type' => 'required',
+               'wallet_id' => 'required',
+               'category_id' => 'required',
+               'amount' => 'required|numeric|min:1',
+               'transaction_date' => 'required|date',
+               'description' => 'nullable|string|max:255',
+          ]);
+
+          $transaction = Transaction::create([
+
+               'user_id' => Auth::id(),
+
+               'wallet_id' => $request->wallet_id,
+
+               'category_id' => $request->category_id,
+
+               'type' => $request->type,
+
+               'amount' => $request->amount,
+
+               'description' => $request->description,
+
+               'transaction_date' => $request->transaction_date,
+
+          ]);
+
+          $receipt->update([
+               'transaction_id' => $transaction->id
+          ]);
+
+          return redirect()
+               ->route('user.transaction.index')
+               ->with(
+                    'success',
+                    'Transaksi berhasil dibuat dari OCR.'
+               );
      }
 }

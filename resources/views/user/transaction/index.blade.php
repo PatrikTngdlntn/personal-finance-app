@@ -7,30 +7,6 @@
             <a href="{{ route('user.transaction.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg">
                 + Tambah
             </a>
-            <li>
-
-                <a href="{{ route('user.receipt.create') }}"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl
-                    {{ request()->routeIs('user.receipt.*') ? 'bg-indigo-100 text-indigo-600' : 'text-gray-600 hover:bg-gray-100' }}">
-
-                    {{-- ICON CAMERA --}}
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 7h4l2-2h6l2 2h4v12H3V7z" />
-
-                        <circle cx="12" cy="13" r="4" stroke-width="2" />
-
-                    </svg>
-
-                    <span>
-                        Scan Receipt
-                    </span>
-
-                </a>
-
-            </li>
         </div>
 
         <div class="bg-white rounded-xl p-4">

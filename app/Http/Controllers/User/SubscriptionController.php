@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Models\Subscription;
 use App\Models\Wallet;
+use App\Models\SubscriptionHistory;
 
 class SubscriptionController extends Controller
 {
@@ -178,6 +179,15 @@ class SubscriptionController extends Controller
             'initial_balance',
             $subscription->amount
         );
+        SubscriptionHistory::create([
+            'subscription_id'   => $subscription->id,
+            'user_id'           => Auth::id(),
+            'wallet_id'         => $wallet->id,
+            'subscription_name' => $subscription->name,
+            'amount'            => $subscription->amount,
+            'currency'          => $subscription->currency,
+            'paid_at'           => now(),
+        ]);
 
         // update next billing
         switch ($subscription->billing_cycle) {

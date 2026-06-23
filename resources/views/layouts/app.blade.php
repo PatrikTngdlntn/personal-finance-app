@@ -24,12 +24,17 @@
                     <a href="{{ auth()->user()->role === 'admin' ? route('admin.dashboard') : route('user.dashboard') }}"
                         class="flex items-center gap-3">
                         <div
-                            class="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 text-2xl font-black text-white shadow-lg shadow-indigo-200">
-                            F
+                            class="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 font-black text-white shadow-lg shadow-indigo-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                                class="w-7 h-7">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                <path d="m8 14 3-3 2 2 3-3" />
+                            </svg>
                         </div>
                         <div>
-                            <p class="text-lg font-bold leading-tight text-slate-950">FinanceApp</p>
-                            <p class="text-sm text-slate-500">Personal Finance</p>
+                            <p class="text-lg font-bold leading-tight text-slate-950">Personal Finance</p>
+                            <p class="text-sm text-slate-500">App</p>
                         </div>
                     </a>
                 </div>
@@ -150,8 +155,11 @@
                             OCR Receipt
                         </a>
 
-                        <a href="#"
-                            class="flex items-center gap-3 rounded-lg px-4 py-3 text-slate-600 transition hover:bg-slate-100 hover:text-slate-950">
+                        <a href="{{ route('user.report.index') }}"
+                            class="flex items-center gap-3 rounded-lg px-4 py-3 text-slate-600 transition
+                            {{ request()->routeIs('user.report.*')
+                                ? 'bg-blue-50 text-blue-600 shadow-sm'
+                                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950' }}">
                             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <path d="M4 19V5" />
@@ -215,7 +223,7 @@
         </button>
 
         <main class="min-h-screen lg:pl-72">
-            <div class="mx-auto max-w-[1560px] px-4 py-6 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-[1560px] px-4 pt-20 pb-6 sm:px-6 lg:px-8 lg:pt-6">
                 {{ $slot }}
             </div>
         </main>
