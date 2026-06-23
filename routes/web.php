@@ -17,6 +17,7 @@ use App\Http\Controllers\User\SavingController;
 use App\Http\Controllers\User\SubscriptionController;
 use App\Http\Controllers\User\ReceiptController;
 use App\Http\Controllers\User\ReportController;
+
 // ADMIN
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 
@@ -65,6 +66,11 @@ Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(f
     Route::post('/receipts/{receipt}/convert', [ReceiptController::class, 'convert'])->name('receipt.convert');
     // report
     Route::get('/report', [ReportController::class, 'index'])->name('report.index');
+    // export report
+    Route::get(
+        '/report/export/excel',
+        [ReportController::class, 'exportExcel']
+    )->name('report.export.excel');
 });
 /*
 |--------------------------------------------------------------------------

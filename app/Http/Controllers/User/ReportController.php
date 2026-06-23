@@ -6,12 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Transaction;
-use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Subscription;
 use App\Models\SavingTransaction;
-use App\Models\Saving;
 use App\Models\SubscriptionHistory;
+use App\Exports\ReportExport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Models\Subscription;
 
 class ReportController extends Controller
 {
@@ -101,5 +101,20 @@ class ReportController extends Controller
                 'year'
             )
         );
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $month = $request->month ?? now()->month;
+        $year  = $request->year ?? now()->year;
+
+        $transactions = Transaction::where('user_id', Auth::id())
+            ->whereMonth('transaction_date', $month)
+            ->whereYear('transaction_date', $year)
+            ->with(['category', 'wallet'])
+            ->latest('transaction_date')
+            ->get();
+
+        return Excel::download(new ReportExport($transactions), "report-{$month}-{$year}.xlsx");
     }
 }
